@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path , include
+from django.urls import path , include  #static
 from django.http import JsonResponse
 #from users.views import RegistrationView , LoginView , ChangepasswordView , ProfileView
 
@@ -23,10 +23,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('users.urls')),
     path('api-auth/', include('rest_framework.urls')),
-    path('api/users/', include('users.urls'))
+    path('api/users/', include('users.urls')),
+     path('api/products_and_categories/', include('products_and_categories.urls')),
      #path('', lambda request: JsonResponse({
         #"message": "Welcome to the E-Commerce API 👋. Visit /api/auth/ to access authentication endpoints."
     #})),
+] #+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-
-]

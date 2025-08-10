@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,11 +41,13 @@ INSTALLED_APPS = [
      'rest_framework',
      'rest_framework_simplejwt.token_blacklist',
      'users',
-     'background_jobs',
+     'crons_jobs',
      'orders',
      'payments_paystack',
-     'products',
+     'products_and_categories',
      'shipping',
+     'charts',
+     'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -62,7 +65,7 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/0' # RabbitMQ URL
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'UTC' # Or desired timezone
+CELERY_TIMEZONE = 'Africa/Lagos' # Or desired timezone
 
 
 
@@ -70,25 +73,39 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com' # Or your email host
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your_email@example.com'
-EMAIL_HOST_PASSWORD = 'your_email_password' # Use environment variables for production
+EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD =  config("EMAIL_HOST_PASSWORD")# Use environment variables for production
 
+#DATABASES = {
+    #'default':{
+        #'ENGINE':
+        #'django.db.backends.postgresql',
+        #'NAME': 'cintoma123db',
+       # 'USER': 'cintoma123',
+        #'PASSWORD': '123456789',
+        #'HOST' : 'localhost',
+        #'PORT' : '5432',
+   # }
+#}
 DATABASES = {
-    'default':{
-        'ENGINE':
-        'django.db.backends.postgresql',
-        'NAME': 'cintoma123db',
-        'USER': 'cintoma123',
-        'PASSWORD': '123456789',
-        'HOST' : 'localhost',
-        'PORT' : '5432',
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('POSTGRES_DB'),
+        'USER': config('POSTGRES_USER'),
+        'PASSWORD': config('POSTGRES_PASSWORD'),
+        'HOST': config('POSTGRES_HOST', default='localhost'),
+        'PORT': config('POSTGRES_PORT', default='5432'),
     }
 }
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_FILTER_BACKENDS':['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE':2,
 }
 
 from datetime import timedelta
@@ -188,6 +205,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
