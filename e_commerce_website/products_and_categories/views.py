@@ -17,6 +17,7 @@ from products_and_categories.filters import ProductFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from django.shortcuts import get_object_or_404
+from rest_framework.permissions import IsAdminUser
 
 # Create your views here.
 
@@ -36,8 +37,8 @@ class CategoryListAPIview(APIView):
 
 class CategorydetailsAPIview(APIView):
     permission_classes = [AllowAny]
-    def get(self , request ,pk):
-        categorys = get_object_or_404(Category , pk=pk)
+    def get(self , request ,slug):
+        categorys = get_object_or_404(Category , slug=slug)
         serializer = CategorySerializer(categorys)
         return Response(serializers.data,status=status.HTTP_200_OK)
 
@@ -64,9 +65,96 @@ class ProductListAPIview(ListAPIView):
     },
     status=status.HTTP_200_OK
 )
- 
+class ProductcreateAPIview(APIView):
+    permission_classes = [IsAdminUser]
+    lookup_field = 'slug'
+    def post(self, request, *args, **kwargs):
+        try:
+            if not request.user.is_authenticated or not request.user.is_staff:
+                return Response(
+                    {"message": "You are not authorized to create a product."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        except NameError:
+            return Response(
+                {"message": "Admin user is not defined."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        serializer = ProductSerializer(data=request.data)
+        # Check if the serializer is valid
+        if serializer.is_valid():
+           serializer.save()
+           return Response(
+                {
+                    "message": "Product created successfully.",
+                    "data": serializer.data
+                },
+                status=status.HTTP_201_CREATED
+            )
+        return Response(
+            {
+                "message": "Product creation failed.",
+                "errors": serializer.errors
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+class ProductupdateAPIview(APIView):
+    permission_classes = [IsAdminUser]
+    lookup_field = 'slug'
+    def put(self, request, slug, *args, **kwargs):
+        try:
+            if not request.user.is_authenticated or not request.user.is_staff:
+                return Response(
+                    {"message": "You are not authorized to update this product."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        except NameError:
+            return Response(
+                {"message": "User is not defined."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        # Assuming 'slug' is a unique identifier for the product
+        # If you are using 'pk' instead, change the get_object_or_404 line
+        product = get_object_or_404(Product, slug=slug)
+        serializer = ProductSerializer(product, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {
+                    "message": "Product updated successfully.",
+                    "data": serializer.data
+                },
+                status=status.HTTP_200_OK
+            )
+        return Response(
+            {
+                "message": "Product update failed.",
+                "errors": serializer.errors
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
- 
+class ProductdeleteAPIview(APIView):
+    permission_classes = [IsAdminUser]
+    lookup_field = 'slug'
+    def delete(self, request, slug, *args, **kwargs):
+        try:
+            if not request.user.is_authenticated or not request.user.is_staff:
+                return Response(
+                    {"message": "You are not authorized to delete this product."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        except NameError:
+            return Response(
+                {"message": "User is not defined."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        product = get_object_or_404(Product, slug=slug)
+        product.delete()
+        return Response(
+            {"message": "Product deleted successfully."},
+            status=status.HTTP_204_NO_CONTENT
+        )
 class ProductfiltersearchAPIview(ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer

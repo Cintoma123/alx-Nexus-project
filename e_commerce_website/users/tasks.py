@@ -6,4 +6,5 @@ def send_welcome_mail(username , email):
     subject = "welcome to our e commerce website we are happy to see u"
     message = f"Hi {username},\n\nThanks for registering. We're excited to have you on board!"
     from_email = 'no-reply@yourdomain.com'
-    send_mail(subject , message , from_email , [email], fail_sliently=False)
+    send_mail(subject , message , from_email , [email], fail_silently=False)
+    return f"Email sent to {username} through its {email}"

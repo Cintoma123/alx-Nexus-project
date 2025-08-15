@@ -1,7 +1,10 @@
 from django.db import models
+#import uuid
+from django.utils.text import slugify
 # Create your models here.
 
 class Category(models.Model):
+    #id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(unique=True)
     description = models.TextField(blank=True)
@@ -16,6 +19,9 @@ class Category(models.Model):
         return self.name
 
 class Product(models.Model):
+    """Model representing a product in the e-commerce website."""
+    #
+    #id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     item_name = models.CharField(max_length=150)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     slug = models.SlugField(unique=True, blank=True)
