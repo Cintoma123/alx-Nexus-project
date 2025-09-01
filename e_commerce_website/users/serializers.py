@@ -1,18 +1,56 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
-from users.models import User
+from users.models import User , Profile 
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import get_user_model
+from datetime import date
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 
 User = get_user_model()
 
 
-class ProfileuserSerializer(serializers.ModelSerializer):
+class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = User
-        fields = ['username' , 'email']
+        model = Profile
+        fields = ['phone_number', 'date_of_birth', 'contact_address', 'age']
+
+    def validate_phone_number(self, value):
+        """Validate phone number format (basic check)."""
+        if value and not value.isdigit() and not (value.startswith('+') and value[1:].isdigit()):
+            raise serializers.ValidationError("Phone number must contain only digits and may start with +.")
+        if value and len(value) < 7:
+            raise serializers.ValidationError("Phone number is too short.")
+        return value
+
+    def validate_date_of_birth(self, value):
+        """Ensure date of birth is not in the future."""
+        if value and value > date.today():
+            raise serializers.ValidationError("Date of birth cannot be in the future.")
+        return value
+
+    def validate_age(self, value):
+        """Ensure age is reasonable."""
+        if value and (value < 0 or value > 120):
+            raise serializers.ValidationError("Age must be between 0 and 120.")
+        return value
+
+    def validate(self, data):
+        """Ensure age matches date_of_birth if both are provided."""
+        dob = data.get("date_of_birth")
+        age = data.get("age")
+
+        if dob and age:
+            today = date.today()
+            calculated_age = (
+                today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+            )
+            if abs(calculated_age - age) > 1:  # allow ±1 year for birthday not yet passed
+                raise serializers.ValidationError(
+                    {"age": "Age does not match the date of birth provided."}
+                )
+        return data
 
 
 
@@ -31,10 +69,12 @@ class RegistrationSerializer(serializers.ModelSerializer):
         min_length=8,
         write_only=True
     )
+    #Profile = ProfileSerializer(read_only=True)
 
     class Meta:
         model = User
         fields = ['email', 'password', 'username' , 'password2']
+        #read_only_fields = ["Profile"]
 
     def validate(self, attrs):
         password = attrs.get('password')
@@ -61,35 +101,34 @@ class LoginSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'username', 'password']
+        fields = ['email', 'password' ,"username"]
 
     def validate(self, data):
         email = data.get('email', None)
         password = data.get('password', None)
+        username = data.get('username', None)
 
         if email is None:
             raise serializers.ValidationError('An email address is required to log in.')
 
+        if "username" in self.initial_data:
+             raise serializers.ValidationError('An username is not required to log in.')
+
         if password is None:
             raise serializers.ValidationError('A password is required to log in.')
-
-        user = authenticate(username=email, password=password)
-
+        user = authenticate(email=email, password=password )
         if user is None:
             raise serializers.ValidationError('A user with this email and password was not found.')
 
         if not user.is_active:
             raise serializers.ValidationError('This user has been deactivated.')
-
+        
+        
         #data['user'] = user
         return {
             "email": user.email,
-            "username": user.username
+            #"username": user.username
         }
-
-
-
-
 class ChangepasswordSerializer(serializers.ModelSerializer):
 
     old_password = serializers.CharField(
@@ -133,5 +172,27 @@ class ChangepasswordSerializer(serializers.ModelSerializer):
         user.set_password(self.validated_data['new_password'])
         user.save()
         return user
+
+# users/serializers.py
+
+
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+
+    default_error_messages = {
+        'bad_token': 'Token is expired or invalid'
+    }
+
+    def validate(self, attrs):
+        self.token = attrs['refresh']
+        return attrs
+
+    def save(self, **kwargs):
+        try:
+            # Blacklist the refresh token so it can’t be used again
+            RefreshToken(self.token).blacklist()
+        except TokenError:
+            self.fail('bad_token')
+
 
         

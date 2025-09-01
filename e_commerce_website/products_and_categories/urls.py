@@ -12,6 +12,7 @@ from products_and_categories.views import (
     ProductdeleteAPIview,
 )
 
+
 urlpatterns = [
     path('category-list/',CategoryListAPIview.as_view(), name='category-list'),
     path('category-details/<int:pk>/', CategorydetailsAPIview.as_view(), name='category-details'),

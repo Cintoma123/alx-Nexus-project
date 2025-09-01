@@ -44,6 +44,7 @@ class CustomUserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
+    #profile = models.OneToOneField('Profile', on_delete=models.CASCADE, null=True, blank=True)
     username = models.CharField(max_length=150, unique=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -73,3 +74,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.username
 
 # Create your models here.
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
+    contact_address = models.TextField(blank=True, null=True)
+    age = models.PositiveIntegerField(blank=True, null=True)
+

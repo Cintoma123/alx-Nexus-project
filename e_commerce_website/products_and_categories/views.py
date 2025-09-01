@@ -18,6 +18,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAdminUser
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 # Create your views here.
 
@@ -67,7 +69,6 @@ class ProductListAPIview(ListAPIView):
 )
 class ProductcreateAPIview(APIView):
     permission_classes = [IsAdminUser]
-    lookup_field = 'slug'
     def post(self, request, *args, **kwargs):
         try:
             if not request.user.is_authenticated or not request.user.is_staff:
