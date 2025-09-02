@@ -5,6 +5,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import get_user_model
 from datetime import date
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+from users.tasks import send_welcome_email
 
 
 User = get_user_model()
@@ -88,9 +89,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(
             email=validated_data['email'],
             password=validated_data['password'],
-            #token=validated_data['token'],
             username=validated_data['username'],
         )
+        send_welcome_email(user)
         return user
 
 

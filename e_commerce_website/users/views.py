@@ -9,7 +9,7 @@ from rest_framework.permissions import AllowAny , IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from users.serializers import RegistrationSerializer, LoginSerializer , ChangepasswordSerializer , ProfileSerializer
-from users.tasks import send_welcome_mail
+from users.tasks import send_welcome_email
 from users.models import User , Profile
 from rest_framework.decorators import action
 from users.utils import get_tokens_for_user
@@ -25,7 +25,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from .serializers import LogoutSerializer
-
+from users.tasks import send_welcome_email
 
 
 class UserRegistrationAPIView(APIView):
@@ -40,7 +40,7 @@ class UserRegistrationAPIView(APIView):
         serializer = RegistrationSerializer(data=request.data)
         if serializer.is_valid():
           user =  serializer.save()
-          user = send_welcome_mail.delay(user.username, user.email) 
+          #user = send_welcome_mail.delay(user.username, user.email) 
           return Response({"message": "User registered successfully."}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -56,6 +56,7 @@ class UserLoginAPIView(APIView):
         email = request.data.get("email")
         password = request.data.get("password")
         user = authenticate(request, email=email ,password=password)
+        send_welcome_email(user)
         serializer = LoginSerializer(data=request.data)
         try:
             if serializer.is_valid():
