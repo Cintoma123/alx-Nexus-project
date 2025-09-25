@@ -1,10 +1,8 @@
 from users.models import User
 from rest_framework import serializers
 from charts.models import Chart, Chartitem
-#from charts.serializers import ChartSerializer, ChartItemSerializer
-from products_and_categories.serializers import CategorySerializer , ProductSerializer
-from products_and_categories.models import Product , Category
-
+from products_and_categories.serializers import ProductSerializer
+from products_and_categories.models import Product
 
 
 class ChartItemSerializer(serializers.ModelSerializer):
@@ -18,17 +16,13 @@ class ChartItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Chartitem
-        fields = ["id", "chart", "product", "product_name", "product_id" , "quantity", "added_at"]
+        fields = ["id", "chart", "product", "product_name", "product_id", "quantity", "added_at"]
+        read_only_fields = ["chart"]
 
     def create(self, validated_data):
-        chart = validated_data.get("chart")
+        chart = self.context['request'].user.users_chart
         product = validated_data.get("product")
         quantity = validated_data.get("quantity")
-        #product_id = validated_data.get("product_id")
-
-        #if chart is None:
-           #user = validated_data.get("user")  # you must pass user id in request
-           #chart, _ = Chart.objects.get_or_create(user=user)
 
         chart_item, created = Chartitem.objects.get_or_create(
             chart=chart,
@@ -59,32 +53,21 @@ class ChartItemSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Quantity must be a positive integer.")
         return value
 
-    def validate_chart(self, value):
-        """Ensure that the chart exists."""
-        if not Chart.objects.filter(id=value.id).exists():
-            raise serializers.ValidationError("Chart does not exist.")
-        return value
-
 
 class ChartSerializer(serializers.ModelSerializer):
     """Serializer for Chart model."""
-    #items =  ChartItemSerializer(many=True, read_only=True)  # nested relationship
-    #user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='users_chart')
+    items =  ChartItemSerializer(many=True, read_only=True)
 
     class Meta:
         model = Chart
-        fields = ["id", "user", "created_at"]
-        #read_only_fields = ["user"]
+        fields = ["id", "user", "created_at", "items"]
+        read_only_fields = ["user"]
 
     def validate_user(self, value):
         """Ensure that the user exists."""
         if not User.objects.filter(id=value.id).exists():
             raise serializers.ValidationError("User does not exist.")
         return value
-    def create(self , validated_data):
-        validated_data["user"] = self.context["request"].user
-        return
-        super().create(validated_data)
 
     
 
