@@ -38,7 +38,7 @@ urlpatterns = [
     path("api/users/", include("users.urls")),   # ✅ include your users app
     path("api/charts/", include("charts.urls")), 
     path('admin/', admin.site.urls),
-    path('api/', include('users.urls')),
+    path('api/orders/', include('orders.urls')),
     path('api-auth/', include('rest_framework.urls')),
     path('api/users/', include('users.urls')),
     path('api/products_and_categories/', include('products_and_categories.urls')),

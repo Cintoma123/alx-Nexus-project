@@ -1,0 +1,73 @@
+/* static/css/base.css */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+}
+
+#header {
+    padding: 10px 100px;
+    font-size: 18px;
+    overflow: auto;
+    border-bottom: 1px solid #ccc;
+}
+
+#header .logo {
+    font-family: 'Arial Black';
+    float: left;
+    color: #333;
+    font-size: 24px;
+    text-decoration: none;
+}
+
+#subheader {
+    padding: 10px 100px;
+    overflow: auto;
+}
+
+#subheader .cart {
+    float: right;
+    text-align: right;
+}
+
+#content {
+    padding: 0 100px;
+}
+
+.order-form {
+    float: left;
+}
+
+.order-info {
+    float: right;
+    width: 300px;
+    background: #efefef;
+    padding: 10px 20px;
+    color: #333;
+    border-bottom: 4px solid #ccc;
+}
+
+.order-info h3, .order-info ul {
+    margin: 0;
+    padding: 0;
+}
+
+.order-info ul li {
+    margin: 0;
+    padding: 10px 0;
+    border-top: 1px solid #ddd;
+    list-style: none;
+}
+
+.order-info ul li:first-child {
+    border-top: 0;
+}
+
+.order-info span {
+    float: right;
+}
+
+.order-info .total {
+    font-weight: bold;
+    font-size: 18px;
+}
