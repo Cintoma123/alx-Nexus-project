@@ -72,8 +72,8 @@ MIDDLEWARE = [
     'orders.middleware.BlockWeekendOrdersMiddleware',
 ]
 
-CELERY_BROKER_URL = 'redis://localhost:6379/0' # RabbitMQ URL
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0' # RabbitMQ URL
+CELERY_BROKER_URL = 'redis://localhost:6379/0' # Redis URL
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0' # Redis URL
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -82,13 +82,18 @@ CELERY_TIMEZONE = 'Africa/Lagos' # Or desired timezone
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+#EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 EMAIL_HOST = 'smtp.gmail.com' # Or your email host
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD =  config("EMAIL_HOST_PASSWORD")# Use environment variables for production
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+DEFAULT_FROM_EMAIL = 'MyShop <noreply@myshop.com>'
+
+# paystack environment variable 
+PAYSTACK_SECRET_KEY = config("PAYSTACK_SECRET_KEY")
+PAYSTACK_PUBLIC_KEY = config("PAYSTACK_PUBLIC_KEY")
+
 
 
 DATABASES = {

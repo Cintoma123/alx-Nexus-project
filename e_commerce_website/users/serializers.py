@@ -15,7 +15,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ['phone_number', 'date_of_birth', 'contact_address', 'age']
+        fields = ['phone_number', 'date_of_birth', 'contact_address', 'age' ,'first_name' ,'last_name' ,'postal_code' ,'city']
 
     def validate_phone_number(self, value):
         """Validate phone number format (basic check)."""

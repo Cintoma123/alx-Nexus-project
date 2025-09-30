@@ -8,7 +8,7 @@ from users.views import (
     UserLoginoutAPIView
 )
 #from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-
+app_name = "users"
 urlpatterns = [
     path('register/', UserRegistrationAPIView.as_view(), name='register'),
     path('login/', UserLoginAPIView.as_view(), name='login'),

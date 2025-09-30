@@ -60,4 +60,8 @@ class Profile(models.Model):
     date_of_birth = models.DateField(blank=True, null=True)
     contact_address = models.TextField(blank=True, null=True)
     age = models.PositiveIntegerField(blank=True, null=True)
+    postal_code = models.CharField(max_length=15, blank=True, null=True)
+    city = models.CharField(max_length=100 , blank=True, null=True)
+    first_name = models.CharField(max_length=50 ,blank=True , null=True)
+    last_name = models.CharField(max_length=50 , blank=True , null=True)
 

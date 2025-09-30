@@ -35,12 +35,14 @@ schema_view = get_schema_view(
 #from users.views import RegistrationView , LoginView , ChangepasswordView , ProfileView
 
 urlpatterns = [
-    path("api/users/", include("users.urls")),   # ✅ include your users app
+    path("api/users/", include("users.urls")),
+    path("api/payments_paystack/",include("payments_paystack.urls")),   # ✅ include your users app
     path("api/charts/", include("charts.urls")), 
     path('admin/', admin.site.urls),
-    path('api/orders/', include('orders.urls')),
+    path('api/orders/', include("orders.urls")),
+    #path("users/", include("users.urls", namespace="users")),
     path('api-auth/', include('rest_framework.urls')),
-    path('api/users/', include('users.urls')),
+    path('api/users/', include('users.urls' ,namespace="users")),
     path('api/products_and_categories/', include('products_and_categories.urls')),
     path('api/charts/' ,include('charts.urls')),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),

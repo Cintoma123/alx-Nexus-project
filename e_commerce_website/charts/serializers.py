@@ -8,44 +8,19 @@ from products_and_categories.models import Product
 class ChartItemSerializer(serializers.ModelSerializer):
     """Serializer for ChartItem model."""
     product = ProductSerializer(read_only=True)
-    product_name = serializers.CharField(source="product.item_name", read_only=True)
 
     product_id = serializers.PrimaryKeyRelatedField(
-        queryset=Product.objects.all(), source="product", write_only=True
+        queryset=Product.objects.all(),
+        source="product",
+        write_only=True,
+        error_messages={
+            'does_not_exist': 'Product with id {pk_value} does not exist.'
+        }
     )
 
     class Meta:
         model = Chartitem
-        fields = ["id", "chart", "product", "product_name", "product_id", "quantity", "added_at"]
-        read_only_fields = ["chart"]
-
-    def create(self, validated_data):
-        chart = self.context['request'].user.users_chart
-        product = validated_data.get("product")
-        quantity = validated_data.get("quantity")
-
-        chart_item, created = Chartitem.objects.get_or_create(
-            chart=chart,
-            product=product,
-            defaults={"quantity": quantity},
-        )
-        if not created:
-            chart_item.quantity += quantity
-            chart_item.save()
-        return chart_item
-
-    def validate_product(self, value):
-        """Ensure that the product exists."""
-        if not value:
-            raise serializers.ValidationError("Product does not exist.")
-        return value
-
-    def validate(self, attrs):
-        product = attrs.get("product")
-        quantity = attrs.get("quantity")
-        if product and quantity and product.stock < quantity:
-            raise serializers.ValidationError("Requested quantity exceeds stock.")
-        return attrs
+        fields = ["id", "chart", "product", "product_id", "quantity", "added_at"]
 
     def validate_quantity(self, value):
         """Ensure that the quantity is a positive integer."""
@@ -68,12 +43,3 @@ class ChartSerializer(serializers.ModelSerializer):
         if not User.objects.filter(id=value.id).exists():
             raise serializers.ValidationError("User does not exist.")
         return value
-
-    
-
-
-
-
-
-
-

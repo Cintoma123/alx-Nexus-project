@@ -22,6 +22,10 @@ class Chartitem(models.Model):
     quantity = models.PositiveIntegerField(default=1)
     added_at = models.DateTimeField(auto_now_add=True)
 
+    
+    @property
+    def total_price(self):
+        return self.product.price * self.quantity
+
     def __str__(self):
         return f"{self.quantity} of {self.product.item_name}"
-        
